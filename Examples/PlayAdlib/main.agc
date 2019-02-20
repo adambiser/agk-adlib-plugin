@@ -84,9 +84,8 @@ global currentSongID as integer = 0
 
 #constant SONG_NAME_X		400
 #constant SONG_NAME_Y		0
-#constant SONG_NAME_WIDTH	100
 global songsPerColumn as integer
-songsPerColumn = GetWindowHeight() / FONT_SIZE
+songsPerColumn = (GetWindowHeight() - CONTROL_BUTTON_SIZE) / FONT_SIZE
 
 Function LoadSongs()
 	// Delete any existing songs.
@@ -118,15 +117,30 @@ Function LoadSongs()
 		endif
 		songIDs.length = songNames.length
 		songNameTextIDs.length = songNames.length
+		columnWidth as integer = 0
+		filenameX as integer
+		filenameX = SONG_NAME_X - BUTTON_PADDING
+		filenameY as integer
 		for index = 0 to songIDs.length
+			if mod(index, songsPerColumn) = 0
+				inc filenameX, columnWidth
+				columnWidth = 0
+				filenameY = SONG_NAME_Y
+			endif
 			songIDs[index] = adlib.LoadMusicFromFile(songNames[index])
 			if GetErrorOccurred()
 				Message(GetLastError())
 			else
 				songNameTextIDs[index] = CreateText(songNames[index])
-				SetTextPosition(songNameTextIDs[index], SONG_NAME_X + (index / songsPerColumn) * SONG_NAME_WIDTH, SONG_NAME_Y + mod(index, songsPerColumn) * FONT_SIZE)
+				SetTextPosition(songNameTextIDs[index], filenameX, filenameY)
 				SetTextSize(songNameTextIDs[index], FONT_SIZE)
+				testWidth as integer
+				testWidth = GetTextTotalWidth(songNameTextIDs[index])
+				if testWidth > columnWidth
+					columnWidth = testWidth
+				endif
 			endif
+			inc filenameY, FONT_SIZE
 		next
 		SetFolder("..")
 		SetErrorMode(2)
@@ -154,17 +168,18 @@ Function ChangeSong(songIndex as integer)
 	currentSongIndex = songIndex
 	if currentSongIndex >= 0
 		currentSongID = songIDs[currentSongIndex]
+		// Load info before playing the song.
+		LoadSongInformation()
 		adlib.PlayMusic(currentSongID, 1)
 		SetTextColor(songNameTextIDs[currentSongIndex], HIGHLIGHT_COLOR, 255)
 	else
 		currentSongID = 0
+		SetTextString(songInfoTextID, "")
 	endif
-	LoadSongInformation()
 EndFunction
 
 Function LoadSongInformation()
 	if not currentSongID
-		SetTextString(songInfoTextID, "")
 		ExitFunction
 	endif
 	// Load song information
@@ -174,6 +189,7 @@ Function LoadSongInformation()
 	if adlib.GetMusicExists(currentSongID)
 		info = info + "GetMusicVolume: " + str(adlib.GetMusicVolume(currentSongID)) + NEWLINE
 		info = info + "GetMusicRate: " + str(adlib.GetMusicRate(currentSongID)) + NEWLINE
+		// NOTE GetMusicDuration should not be called on a song while it is playing or it will start over.
 		info = info + "GetMusicDuration: " + GetDurationString(adlib.GetMusicDuration(currentSongID)) + NEWLINE
 		//~ info = info + "GetMusicPosition: " + str(adlib.GetMusicPosition(currentSongID), 2) + NEWLINE
 	endif
