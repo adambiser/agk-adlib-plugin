@@ -206,7 +206,7 @@ void WriteReg(int reg, int val)
 
 void LoadNextBuffer()
 {
-	//Log("LoadNextBuffer: %d", nextBuffer);
+	//Log("%d - LoadNextBuffer: %d", agk::GetMilliseconds(), nextBuffer);
 	// Start by zeroing the buffer to silence.
 	ZeroMemory(bufferPos[nextBuffer], soundBytesPerBuffer);
 	if (buffersUntilStop)
@@ -444,6 +444,7 @@ int LoadMusic(const char *filename, unsigned int memblockID)
 	Log("Loading music from %s", filename);
 	MemblockProvider fp;
 	CPlayer	*p = NULL;
+	std::string error;
 	try
 	{
 		//agk::Message(filename);
@@ -451,18 +452,30 @@ int LoadMusic(const char *filename, unsigned int memblockID)
 		p = CAdPlug::factory(filename, opl, CAdPlug::players, fp);
 		if (!p)
 		{
-			throw std::string("Unknown error.");
+			error.append("Failed to determine music file type.");
 		}
 		fp.removeFile(filename);
 	}
+	catch (int e)
+	{
+		error.append("Error #").append(std::to_string(e));
+	}
 	catch (std::string e)
+	{
+		error.append(e);
+	}
+	catch (...)
+	{
+		error.append("Unknown error.");
+	}
+	if (error.size() > 0)
 	{
 		fp.removeFile(filename);
 		delete p;
 		std::string msg = "Error loading music: ";
 		msg.append(filename);
 		msg.append("\n");
-		msg.append(e);
+		msg.append(error);
 		agk::PluginError(msg.c_str());
 		return 0;
 	}
