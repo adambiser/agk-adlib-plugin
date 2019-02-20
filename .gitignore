@@ -1,0 +1,5 @@
+Examples/*/*.exe
+Examples/*/media/bytecode.byc
+Examples/*/Plugins/Opl2Plugin/Windows.dll
+Exclude/*
+Examples/PlayAdlib/media/*

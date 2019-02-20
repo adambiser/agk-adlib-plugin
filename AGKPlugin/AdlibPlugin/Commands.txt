@@ -1,0 +1,31 @@
+#CommandName,ReturnType,ParameterTypes,Windows,Linux,Mac,Android,iOS,Windows64
+#
+# General methods.
+#
+Init,I,I,Init,0,0,0,0,0
+Update,0,0,Update,0,0,0,0,0
+Shutdown,0,0,Shutdown,0,0,0,0,0
+#
+# All other methods.
+#
+DeleteMusic,0,I,DeleteMusic,0,0,0,0,0
+GetMusicDuration,F,I,GetMusicDuration,0,0,0,0,0
+GetMusicExists,I,I,GetMusicExists,0,0,0,0,0
+GetMusicLoopCount,I,0,GetMusicLoopCount,0,0,0,0,0
+GetMusicSoundinstance,I,0,GetMusicSoundinstance,0,0,0,0,0
+GetMusicPaused,I,0,GetMusicPaused,0,0,0,0,0
+GetMusicPlaying,I,0,GetMusicPlaying,0,0,0,0,0
+GetMusicPosition,F,I,GetMusicPosition,0,0,0,0,0
+GetMusicRate,I,I,GetMusicRate,0,0,0,0,0
+GetMusicSystemVolume,I,0,GetMusicSystemVolume,0,0,0,0,0
+GetMusicVolume,I,I,GetMusicVolume,0,0,0,0,0
+LoadMusicFromMemblock,I,IS,LoadMusicFromMemblock,0,0,0,0,0
+LoadMusicFromFile,I,S,LoadMusicFromFile,0,0,0,0,0
+PauseMusic,0,0,PauseMusic,0,0,0,0,0
+PlayMusic,0,II,PlayMusic,0,0,0,0,0
+ResumeMusic,0,0,ResumeMusic,0,0,0,0,0
+#SeekMusic,0,IFI,SeekMusic,0,0,0,0,0
+SetMusicLoopCount,0,I,SetMusicLoopCount,0,0,0,0,0
+SetMusicSystemVolume,0,I,SetMusicSystemVolume,0,0,0,0,0
+SetMusicVolume,0,II,SetMusicVolume,0,0,0,0,0
+StopMusic,0,0,StopMusic,0,0,0,0,0
