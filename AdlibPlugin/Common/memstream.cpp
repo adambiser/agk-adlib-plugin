@@ -20,6 +20,7 @@ binio::Float MemblockStream::peekFloat(FType ft)
 
 void MemblockStream::seek(long amount, Offset by)
 {
+	err &= ~Eof;
 	switch (by)
 	{
 	case Offset::Add:
@@ -38,9 +39,8 @@ binio::Byte MemblockStream::getByte()
 {
 	if (offset >= size)
 	{
-		// Don't use PluginError or it crashes.
-		//agk::PluginError("Tried to read past end of memblock.");
-		throw std::string("Tried to read past end of memblock.");
+		err |= Eof;
+		return (Byte)EOF;
 	}
 	return (Byte)agk::GetMemblockByte(memblockID, offset++);
 }

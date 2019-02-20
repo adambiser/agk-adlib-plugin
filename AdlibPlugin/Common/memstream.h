@@ -28,6 +28,7 @@ public:
 		offset(0)
 	{
 		size = agk::GetMemblockSize(memblockID);
+		setFlag(binio::FloatIEEE);
 	}
 	~MemblockStream()
 	{
@@ -35,7 +36,6 @@ public:
 	}
 	binio::Int peekInt(unsigned int size);
 	binio::Float peekFloat(FType ft);
-	bool ateof() { return offset >= size; }
 	void ignore(unsigned long amount = 1) { offset += amount; }
 	void seek(long amount, Offset by = Set);
 	long pos() { return offset; }
