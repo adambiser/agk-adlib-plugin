@@ -60,7 +60,7 @@ extern "C" DLL_EXPORT void Shutdown();
 extern "C" DLL_EXPORT void DeleteMusic(int songID);
 /*
 @desc Returns the duration of the song in seconds.
-Can be called while a song is playing.
+This should not be called on a song while it is playing or the song will start again from the beginning.
 @param songID The song ID.
 @return Duration in seconds.
 */
