@@ -1,5 +1,3 @@
-#define WIN32_LEAN_AND_MEAN
-
 #include "memstream.h"
 
 binio::Int MemblockStream::peekInt(unsigned int size)
