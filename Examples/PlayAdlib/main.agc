@@ -82,10 +82,42 @@ global songNameTextIDs as integer[]
 global currentSongIndex as integer = -1
 global currentSongID as integer = 0
 
+global externalDataFileNames as string[]
+externalDataFileNames.insertsorted("go-_-go.bnk")
+externalDataFileNames.insertsorted("icepatch.003")
+externalDataFileNames.insertsorted("insts.dat")
+externalDataFileNames.insertsorted("lines1.snd")
+externalDataFileNames.insertsorted("SONG1.ins")
+externalDataFileNames.insertsorted("standard.bnk")
+externalDataFileNames.insertsorted("tafa.tim")
+
 #constant SONG_NAME_X		400
 #constant SONG_NAME_Y		0
 global songsPerColumn as integer
-songsPerColumn = (GetWindowHeight() - CONTROL_BUTTON_SIZE) / FONT_SIZE
+songsPerColumn = (GetWindowHeight() - CONTROL_BUTTON_SIZE - BUTTON_PADDING) / FONT_SIZE
+
+//
+// Scans the current folder for files.
+// Loads the external data files that it finds.
+// Returns a sorted array of filenames.
+//
+Function GetSongFiles()
+	filenames as string[]
+	filename as String
+	filename = GetFirstFile()
+	while filename <> ""
+		if externalDataFileNames.find(filename) >= 0
+			// Add external data files now.
+			adlib.LoadExternalDataFromFile(filename)
+			if GetErrorOccurred()
+				Message(GetLastError())
+			endif
+		else
+			filenames.insertsorted(filename)
+		endif
+		filename = GetNextFile()
+	endwhile
+EndFunction filenames
 
 Function LoadSongs()
 	// Delete any existing songs.
@@ -96,42 +128,36 @@ Function LoadSongs()
 		endif
 		DeleteText(songNameTextIDs[index])
 	next
+	// Remove external data entries.
+	adlib.DeleteAllExternalData()
 	songIDs.length = -1
 	songNameTextIDs.length = songIDs.length
 	if SetFolder("songs")
 		SetErrorMode(0)
-		songNames as string[]
-		songNames.length = GetFileCount() - 1
-		if songNames.length >= 0
-			// Load filenames and sort.
-			filename as String
-			filename = GetFirstFile()
-			index = 0
-			repeat
-				songNames[index] = filename
-				filename = GetNextFile()
-				inc index
-			until filename = ""
-			songNames.sort()
-			// Load songs
-		endif
-		songIDs.length = songNames.length
-		songNameTextIDs.length = songNames.length
+		filenames as string[]
+		filenames = GetSongFiles()
+		// Load songs
+		songIDs.length = filenames.length
+		songNameTextIDs.length = filenames.length
 		columnWidth as integer = 0
 		filenameX as integer
 		filenameX = SONG_NAME_X - BUTTON_PADDING
 		filenameY as integer
 		for index = 0 to songIDs.length
 			if mod(index, songsPerColumn) = 0
-				inc filenameX, columnWidth
+				// Don't go too wide...
+				if columnWidth > 150
+					columnWidth = 150
+				endif
+				inc filenameX, columnWidth + BUTTON_PADDING
 				columnWidth = 0
 				filenameY = SONG_NAME_Y
 			endif
-			songIDs[index] = adlib.LoadMusicFromFile(songNames[index])
+			songIDs[index] = adlib.LoadMusicFromFile(filenames[index])
 			if GetErrorOccurred()
 				Message(GetLastError())
 			else
-				songNameTextIDs[index] = CreateText(songNames[index])
+				songNameTextIDs[index] = CreateText(filenames[index])
 				SetTextPosition(songNameTextIDs[index], filenameX, filenameY)
 				SetTextSize(songNameTextIDs[index], FONT_SIZE)
 				testWidth as integer
@@ -142,15 +168,15 @@ Function LoadSongs()
 			endif
 			inc filenameY, FONT_SIZE
 		next
-		SetFolder("..")
 		SetErrorMode(2)
+		SetFolder("..")
 	endif
 	ChangeSong(-1)
 EndFunction
 
 Function ChangeEmulator(emulator as integer)
-	// Shutdown is safe to call before any emulator has been initialized.
-	// However, you'll likely never need to call Shutdown, just Init.
+	// Shutdown is safe to call before the emulator has been initialized.
+	// However, you'll likely only need to call Init since Shutdown is called when the plugin is unloaded.
 	adlib.Shutdown()
 	adlib.Init(emulator)
 	SetVirtualButtonColor(EMULATOR_BUTTON_START + currentEmulator - 1, NORMAL_COLOR)
