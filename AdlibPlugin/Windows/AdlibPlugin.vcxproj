@@ -105,6 +105,7 @@
   <ItemGroup>
     <ClCompile Include="..\AGKLibraryCommands.cpp" />
     <ClCompile Include="..\Common\DllMain.cpp" />
+    <ClCompile Include="..\Common\memfprovider.cpp" />
     <ClCompile Include="..\Common\memstream.cpp" />
     <ClCompile Include="..\Common\player.cpp" />
   </ItemGroup>
@@ -112,6 +113,7 @@
     <ClInclude Include="..\AGKLibraryCommands.h" />
     <ClInclude Include="..\Common\adplug.h" />
     <ClInclude Include="..\Common\DllMain.h" />
+    <ClInclude Include="..\Common\memfprovider.h" />
     <ClInclude Include="..\Common\memstream.h" />
     <ClInclude Include="..\Common\player.h" />
     <ClInclude Include="resource.h" />
