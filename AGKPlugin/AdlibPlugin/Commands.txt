@@ -8,6 +8,8 @@ Shutdown,0,0,Shutdown,0,0,0,0,0
 #
 # All other methods.
 #
+DeleteAllExternalData,0,0,DeleteAllExternalData,0,0,0,0,0
+DeleteExternalData,0,S,DeleteExternalData,0,0,0,0,0
 DeleteMusic,0,I,DeleteMusic,0,0,0,0,0
 GetMusicDuration,F,I,GetMusicDuration,0,0,0,0,0
 GetMusicExists,I,I,GetMusicExists,0,0,0,0,0
@@ -19,6 +21,9 @@ GetMusicPosition,F,I,GetMusicPosition,0,0,0,0,0
 GetMusicRate,I,I,GetMusicRate,0,0,0,0,0
 GetMusicSystemVolume,I,0,GetMusicSystemVolume,0,0,0,0,0
 GetMusicVolume,I,I,GetMusicVolume,0,0,0,0,0
+LoadExternalDataFromFile,0,S,LoadExternalDataFromFile,0,0,0,0,0
+LoadExternalDataFromFileEx,0,SS,LoadExternalDataFromFileEx,0,0,0,0,0
+LoadExternalDataFromMemblock,0,IS,LoadExternalDataFromMemblock,0,0,0,0,0
 LoadMusicFromMemblock,I,IS,LoadMusicFromMemblock,0,0,0,0,0
 LoadMusicFromFile,I,S,LoadMusicFromFile,0,0,0,0,0
 PauseMusic,0,0,PauseMusic,0,0,0,0,0

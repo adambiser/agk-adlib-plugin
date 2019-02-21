@@ -54,6 +54,15 @@ This is done when the plugin unloads and does not need to be explicitly called.
 */
 extern "C" DLL_EXPORT void Shutdown();
 /*
+Deletes all external data entries
+*/
+extern "C" DLL_EXPORT void DeleteAllExternalData();
+/*
+Deletes an external data entry.
+@param entryname	The name of the entry to remove.
+*/
+extern "C" DLL_EXPORT void DeleteExternalData(const char *entryname);
+/*
 @desc Deletes the song information and invalidates the ID.
 @param songID The song ID to delete.
 */
@@ -115,6 +124,40 @@ extern "C" DLL_EXPORT int GetMusicSystemVolume();
 @return An integer from 0 to 100.
 */
 extern "C" DLL_EXPORT int GetMusicVolume(int songID);
+/*
+Load external data required for some music file formats from a file.
+Will raise an error if an entry with this name already exists.
+
+ie: The standard.bnk for ROL files.
+@param filename	The file to load.  This is used as the entry name internally.
+@return 1 if the entry was loaded successfully or 0 if an entry with this name already exists.
+*/
+extern "C" DLL_EXPORT void LoadExternalDataFromFile(const char *filename);
+/*
+Loads external data required for some music file formats from a file.
+Will raise an error if an entry with this name already exists.
+
+ie: The standard.bnk for ROL files.
+
+This is the same as LoadExternalDataFromFile, but allows the internal entry name to be set.
+@param filename		The file to load.
+@param entryname	The name of the entry.  Each music file format has its own naming convention.
+@return 1 if the entry was loaded successfully or 0 if an entry with this name already exists.
+*/
+extern "C" DLL_EXPORT void LoadExternalDataFromFileEx(const char *filename, const char *entryname);
+/*
+Loads external data required for some music file formats from a memblock.
+Will raise an error if an entry with this name already exists.
+
+An internal copy of the memblock is made.
+The memblock in the calling code can be deleted after calling this method.
+
+ie: The standard.bnk for ROL files.
+@param memblockID	The memblock to load.
+@param entryname	The name of the entry.  Each music file format has its own naming convention.
+@return 1 if the entry was loaded successfully or 0 if an entry with this name already exists.
+*/
+extern "C" DLL_EXPORT void LoadExternalDataFromMemblock(int memblockID, const char *entryname);
 /*
 @desc Loads song information from the given file name.
 @param filename The name of the file to load.

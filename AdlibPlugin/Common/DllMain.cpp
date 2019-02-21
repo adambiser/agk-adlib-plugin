@@ -21,6 +21,7 @@ GNU General Public License for more details.
 #include "adplug.h"
 
 #include "player.h"
+#include "memfprovider.h"
 #include "memstream.h"
 
 /*
@@ -79,6 +80,7 @@ bool musicPaused = false;
 /*
 Song list.
 */
+MemblockFileProvider fileProvider;
 std::vector<AgkPlayer *> songs = std::vector<AgkPlayer *>();
 AgkPlayer *currentSong = NULL;
 
@@ -350,6 +352,7 @@ void Shutdown()
 		agk::DeleteMemblock(musicMemblockID);
 		musicMemblockID = 0;
 	}
+	fileProvider.clear();
 	for (AgkPlayer *song : songs)
 	{
 		delete song;
@@ -360,6 +363,16 @@ void Shutdown()
 		delete opl;
 		opl = NULL;
 	}
+}
+
+void DeleteAllExternalData()
+{
+	fileProvider.clear();
+}
+
+void DeleteExternalData(const char *entryname)
+{
+	fileProvider.removeFile(entryname);
 }
 
 void DeleteMusic(int songID)
@@ -433,6 +446,32 @@ int GetMusicVolume(int songID)
 	return songs[songID]->getvolume();
 }
 
+void LoadExternalDataFromFile(const char *filename)
+{
+	LoadExternalDataFromFileEx(filename, filename);
+}
+
+void LoadExternalDataFromFileEx(const char *filename, const char *entryname)
+{
+	unsigned int memblockID = agk::CreateMemblockFromFile(filename);
+	LoadExternalDataFromMemblock(memblockID, entryname);
+	agk::DeleteMemblock(memblockID);
+}
+
+void LoadExternalDataFromMemblock(int memblockID, const char *entryname)
+{
+	unsigned int size = agk::GetMemblockSize(memblockID);
+	unsigned int memID = agk::CreateMemblock(size);
+	agk::CopyMemblock(memblockID, memID, 0, 0, size);
+	if (!fileProvider.addFile(entryname, memID))
+	{
+		std::string msg = "An external data entry already exists for '";
+		msg.append(entryname);
+		msg.append("'");
+		agk::PluginError(msg.c_str());
+	}
+}
+
 // TODO Need a way to load files that have external dependencies, like KSM files needing inst.dat.
 int LoadMusic(const char *filename, unsigned int memblockID)
 {
@@ -442,35 +481,39 @@ int LoadMusic(const char *filename, unsigned int memblockID)
 		return 0;
 	}
 	Log("Loading music from %s", filename);
-	MemblockProvider fp;
 	CPlayer	*p = NULL;
 	std::string error;
-	try
+	//agk::Message(filename);
+	if (fileProvider.addFile(filename, memblockID))
 	{
-		//agk::Message(filename);
-		fp.addFile(filename, memblockID);
-		p = CAdPlug::factory(filename, opl, CAdPlug::players, fp);
-		if (!p)
+		try
 		{
-			error.append("Failed to determine music file type.");
+			p = CAdPlug::factory(filename, opl, CAdPlug::players, fileProvider);
 		}
-		fp.removeFile(filename);
+		catch (int e)
+		{
+			error.append("Error #").append(std::to_string(e));
+		}
+		catch (std::string e)
+		{
+			error.append(e);
+		}
+		catch (...)
+		{
+			error.append("Unknown error.");
+		}
+		fileProvider.removeFile(filename);
 	}
-	catch (int e)
+	else
 	{
-		error.append("Error #").append(std::to_string(e));
+		error.append("A data entry already exists for this file name.");
 	}
-	catch (std::string e)
+	if (!p && error.size() == 0)
 	{
-		error.append(e);
-	}
-	catch (...)
-	{
-		error.append("Unknown error.");
+		error.append("Failed to determine music file type.");
 	}
 	if (error.size() > 0)
 	{
-		fp.removeFile(filename);
 		delete p;
 		std::string msg = "Error loading music: ";
 		msg.append(filename);
@@ -524,6 +567,7 @@ void PauseMusic()
 void PlayMusic(int songID, int loop)
 {
 	StopMusic();
+	ResetOPL();
 	Log("PlayMusic: %d. loop = %d", songID, loop);
 	ValidateSongID(songID, );
 	currentSong = songs[songID];
@@ -593,7 +637,6 @@ void SetMusicVolume(int songID, int volume)
 void StopMusic()
 {
 	agk::Log("Stopping music.");
-	ResetOPL();
 	if (currentSong)
 	{
 		// Rewind the wong and clear this pointer, but do not delete the song!
