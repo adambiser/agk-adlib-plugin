@@ -24,10 +24,18 @@ GNU General Public License for more details.
 #include "../AdPlug/src/emuopl.h"  // Dual OPL.
 
 #if defined(_WINDOWS)
+#if defined(_DEBUG)
+#if defined(_WIN64)
+#pragma comment(lib, "adplug64.lib")
+#else
+#pragma comment(lib, "../AdPlug/Win32/adplug-debug.lib")
+#endif
+#else
 #if defined(_WIN64)
 #pragma comment(lib, "adplug64.lib")
 #else
 #pragma comment(lib, "../AdPlug/Win32/adplug.lib")
+#endif
 #endif
 #endif
 
