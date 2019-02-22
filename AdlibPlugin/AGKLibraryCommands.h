@@ -11,7 +11,7 @@
 //class cImage;
 //class cSprite;
 //
-//extern char*(*AGKCommand0)( unsigned int );
+extern char*(*AGKCommand0)( unsigned int );
 //extern void(*AGKCommand1)( char* );
 //extern float(*AGKCommand2)( float );
 //extern float(*AGKCommand3)( float );
@@ -1904,7 +1904,7 @@ extern unsigned char*(*AGKCommand1832)( unsigned int );
 class agk
 {
 	public:
-		//static inline char* CreateString( unsigned int size ) { return AGKCommand0( size ); }
+		static inline char* CreateString( unsigned int size ) { return AGKCommand0( size ); }
 		//static inline void DeleteString( char* str ) { AGKCommand1( str ); }
 		//static inline float WorldToScreenX( float x ) { return AGKCommand2( x ); }
 		//static inline float WorldToScreenY( float y ) { return AGKCommand3( y ); }

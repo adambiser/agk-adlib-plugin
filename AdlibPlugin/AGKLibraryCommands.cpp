@@ -1,6 +1,6 @@
 #include "AGKLibraryCommands.h"
 
-//char*(*AGKCommand0)( unsigned int ) = 0;
+char*(*AGKCommand0)( unsigned int ) = 0;
 //void(*AGKCommand1)( char* ) = 0;
 //float(*AGKCommand2)( float ) = 0;
 //float(*AGKCommand3)( float ) = 0;
@@ -1897,7 +1897,7 @@ extern "C" DLL_EXPORT void ReceiveAGKPtr( AGKVoidFunc ptr )
 {
 	GetAGKFunction = (AGKVoidFunc(*)(const char*)) ptr;
 
-	//AGKCommand0 = (char*(*)(unsigned int)) GetAGKFunction( "CREATESTRING_S_L" );
+	AGKCommand0 = (char*(*)(unsigned int)) GetAGKFunction( "CREATESTRING_S_L" );
 	//AGKCommand1 = (void(*)(char*)) GetAGKFunction( "DELETESTRING_0_S" );
 	//AGKCommand2 = (float(*)(float)) GetAGKFunction( "WORLDTOSCREENX_F_F" );
 	//AGKCommand3 = (float(*)(float)) GetAGKFunction( "WORLDTOSCREENY_F_F" );
