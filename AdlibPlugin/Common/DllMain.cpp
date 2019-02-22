@@ -48,8 +48,6 @@ unsigned int musicMemblockID = 0;
 unsigned int musicSoundID = 0;
 // When the music is playing, this is the sound instance.
 unsigned int soundInstance = 0;
-// The memblock used to create the timing sound object.
-//int clockMemblockID = 0;
 // The timing sound object.
 unsigned int clockSoundID = 0;
 // When the music is playing, this is the timing sound instance.
@@ -67,15 +65,15 @@ unsigned char *bufferPos[SOUND_BUFFER_COUNT];
 int nextBuffer = 0;
 // The time at which the next buffer should load.
 int lastClockLoopCount = 0;
-/*
-Playback settings.
-*/
-int musicSystemVolume = 100;
-int currentLoopSetting = 0;
-int loopCount = 0;
 // When this is set, the song is done looping and coming to a stop.
 int buffersUntilStop = 0;
 int framesToRender = 0;
+/*
+Playback settings.
+*/
+int currentLoopSetting = 0;
+int loopCount = 0;
+int musicSystemVolume = 100;
 bool musicPaused = false;
 /*
 Song list.
@@ -94,7 +92,6 @@ AgkPlayer *currentSong = NULL;
 	songID--
 
 // Calls the AGK Log function, but with formatting.
-// TODO Move this into a global functions file?
 void Log(char *format, ...)
 {
 	char buffer[256];
@@ -112,11 +109,6 @@ void Log(char *format, ...)
 	}
 }
 
-// TODO Move this into a global functions file?
-inline int limit(int value, int min, int max) {
-	return (value > max) ? max : (value < min) ? min : value;
-}
-
 void ResetOPL()
 {
 	if (opl)
@@ -128,13 +120,9 @@ void ResetOPL()
 
 int GetPlayVolume()
 {
-	//return 100;
 	if (currentSong && musicSystemVolume)
 	{
-		//int volume = musicSystemVolume;
-		int volume = (int)((musicSystemVolume / 100.0f) * currentSong->getvolume());
-		//Log("GetPlayVolume: %d", volume);
-		return volume;
+		return (int)((musicSystemVolume / 100.0f) * currentSong->getvolume());
 	}
 	return 0;
 }
@@ -143,7 +131,7 @@ int Init(int emulator)
 {
 	if (opl)
 	{
-		agk::PluginError("OPL emulator already initialized.");
+		agk::PluginError("Adlib emulator already initialized.");
 		return 0;
 	}
 	agk::Log("Initializing Adlib emulator.");
@@ -165,12 +153,12 @@ int Init(int emulator)
 		opl = new CEmuopl(SOUND_SAMPLE_RATE, true, true);
 		break;
 	default:
-		agk::PluginError("Invalid emulator value.");
+		agk::PluginError("Invalid emulator type value.");
 		return 0;
 	}
 	if (!opl)
 	{
-		agk::PluginError("Failed to create OPL emulator.");
+		agk::PluginError("Failed to create Adlib emulator.");
 		return 0;
 	}
 	// Set up the sound buffer memblock.
@@ -208,7 +196,7 @@ void WriteReg(int reg, int val)
 
 void LoadNextBuffer()
 {
-	//Log("%d - LoadNextBuffer: %d", agk::GetMilliseconds(), nextBuffer);
+	Log("%d - LoadNextBuffer: %d", agk::GetMilliseconds(), nextBuffer);
 	// Start by zeroing the buffer to silence.
 	ZeroMemory(bufferPos[nextBuffer], soundBytesPerBuffer);
 	if (buffersUntilStop)
@@ -253,16 +241,29 @@ void LoadNextBuffer()
 				//}
 				// Read song instructions.
 				//currentSong->update();
+				agk::Log("currentSong->update");
 				if (currentSong->update())
 				{
 					float refresh = currentSong->getrefresh();
 					if (refresh)
 					{
+						agk::Log("has framesToRender");
 						framesToRender = (int)(SOUND_SAMPLE_RATE / currentSong->getrefresh());
 					}
 				}
 				else
 				{
+					// Play subsongs sequentially.
+					//int subsong = currentSong->getsubsong();
+					//agk::Log("Checking subsong.");
+					//if (subsong < currentSong->getsubsongs() - 1)
+					//{
+					//	agk::Log("Next subsong.");
+					//	currentSong->rewind(subsong + 1);
+					//}
+					//else
+					//{
+					//}
 					loopCount++;
 					//Log("Loop check: %d, %d", loopCount, currentLoopSetting);
 					if (currentLoopSetting == 0 || (currentLoopSetting > 1 && loopCount == currentLoopSetting))
@@ -277,6 +278,7 @@ void LoadNextBuffer()
 					}
 					else
 					{
+						agk::Log("currentSong->rewind");
 						currentSong->rewind();
 					}
 				}
@@ -352,12 +354,8 @@ void Shutdown()
 		agk::DeleteMemblock(musicMemblockID);
 		musicMemblockID = 0;
 	}
-	fileProvider.clear();
-	for (AgkPlayer *song : songs)
-	{
-		delete song;
-	}
-	songs.clear();
+	DeleteAllExternalData();
+	DeleteAllMusic();
 	if (opl)
 	{
 		delete opl;
@@ -368,6 +366,15 @@ void Shutdown()
 void DeleteAllExternalData()
 {
 	fileProvider.clear();
+}
+
+void DeleteAllMusic()
+{
+	for (AgkPlayer *song : songs)
+	{
+		delete song;
+	}
+	songs.clear();
 }
 
 void DeleteExternalData(const char *entryname)
@@ -387,10 +394,30 @@ void DeleteMusic(int songID)
 	songs[songID] = NULL;
 }
 
+static char *CreateString(std::string text)
+{
+	unsigned int size = text.size() + 1;
+	char *str = agk::CreateString(size);
+	strcpy_s(str, size, text.c_str());
+	return str;
+}
+
+char *GetMusicAuthor(int songID)
+{
+	ValidateSongID(songID, NULL);
+	return CreateString(songs[songID]->getauthor());
+}
+
+char *GetMusicDescription(int songID)
+{
+	ValidateSongID(songID, NULL);
+	return CreateString(songs[songID]->getdesc());
+}
+
 float GetMusicDuration(int songID)
 {
 	ValidateSongID(songID, 0.0f);
-	return songs[songID]->songlength() / 1000.0f;
+	return songs[songID]->songlength();
 }
 
 int GetMusicExists(int songID)
@@ -430,14 +457,38 @@ int GetMusicRate(int songID)
 	return songs[songID]->getspeed();
 }
 
-int GetMusicSoundinstance()
+int GetMusicSoundInstance()
 {
 	return soundInstance;
+}
+
+int GetMusicSubsong(int songID)
+{
+	ValidateSongID(songID, 0);
+	return songs[songID]->getsubsong();
+}
+
+int GetMusicSubsongCount(int songID)
+{
+	ValidateSongID(songID, 0);
+	return songs[songID]->getsubsongs();
 }
 
 int GetMusicSystemVolume()
 {
 	return musicSystemVolume;
+}
+
+char *GetMusicTitle(int songID)
+{
+	ValidateSongID(songID, NULL);
+	return CreateString(songs[songID]->gettitle());
+}
+
+char *GetMusicType(int songID)
+{
+	ValidateSongID(songID, NULL);
+	return CreateString(songs[songID]->gettype());
 }
 
 int GetMusicVolume(int songID)
@@ -472,7 +523,6 @@ void LoadExternalDataFromMemblock(int memblockID, const char *entryname)
 	}
 }
 
-// TODO Need a way to load files that have external dependencies, like KSM files needing inst.dat.
 int LoadMusic(const char *filename, unsigned int memblockID)
 {
 	if (!opl)
@@ -522,15 +572,8 @@ int LoadMusic(const char *filename, unsigned int memblockID)
 		agk::PluginError(msg.c_str());
 		return 0;
 	}
-	Log("file: '%s' loaded = %d", filename, p);
-	//if (!p)
-	//{
-	//	std::string msg = "Error loading music: ";
-	//	msg.append(filename);
-	//	agk::PluginError(msg.c_str());
-	//	return 0;
-	//}
-	p->rewind();
+	//Log("file: '%s' loaded = %d", filename, p);
+	//p->rewind(3);
 	songs.push_back(new AgkPlayer(p));
 	Log("Loaded music %d from file %s.", (int)songs.size(), filename);
 	return (int)songs.size();
@@ -558,10 +601,16 @@ void PauseMusic()
 		return;
 	}
 	musicPaused = true;
-	agk::StopSoundInstance(soundInstance);
-	agk::StopSoundInstance(clockSoundInstance);
-	soundInstance = 0;
-	clockSoundInstance = 0;
+	if (soundInstance)
+	{
+		agk::StopSoundInstance(soundInstance);
+		soundInstance = 0;
+	}
+	if (clockSoundInstance)
+	{
+		agk::StopSoundInstance(clockSoundInstance);
+		clockSoundInstance = 0;
+	}
 }
 
 void PlayMusic(int songID, int loop)
@@ -571,13 +620,17 @@ void PlayMusic(int songID, int loop)
 	Log("PlayMusic: %d. loop = %d", songID, loop);
 	ValidateSongID(songID, );
 	currentSong = songs[songID];
-	//currentSong->rewind();
+	// Rewind takes the song to the current seek position, which might be 0 anyway.
+	agk::Log("Rewind");
+	currentSong->rewind();
 	//Log("framesPerTic: %d", framesPerTic);
 	currentLoopSetting = loop;
+	agk::Log("Loading buffers");
 	for (int buffer = 0; buffer < SOUND_BUFFER_COUNT; buffer++)
 	{
 		LoadNextBuffer();
 	}
+	agk::Log("Play sounds.");
 	soundInstance = agk::PlaySound(musicSoundID, GetPlayVolume(), 1);
 	clockSoundInstance = agk::PlaySound(clockSoundID, 0, 1);
 	lastClockLoopCount = agk::GetSoundInstanceLoopCount(clockSoundInstance);
@@ -601,16 +654,33 @@ void ResumeMusic()
 	lastClockLoopCount = agk::GetSoundInstanceLoopCount(clockSoundInstance);
 }
 
-//void SeekMusic(int songID, float seconds, int mode)
-//{
-//	ValidateSongID(songID, );
-//	songs[songID]->seek(seconds, mode);
-//}
+void SeekMusic(int songID, float seconds, int mode)
+{
+	ValidateSongID(songID, );
+	songs[songID]->seek(seconds, mode);
+	if (currentSong == songs[songID])
+	{
+		currentSong->rewind();
+	}
+}
 
 void SetMusicLoopCount(int loop)
 {
 	currentLoopSetting = loop;
 	loopCount = 0;
+}
+
+void SetMusicSubsong(int songID, int subsong)
+{
+	ValidateSongID(songID, );
+	//unsigned int oldSubsong = songs[songID]->getsubsong();
+	songs[songID]->setsubsong(subsong);
+	// If currently playing, immediately start playing the new subsong.
+	if (currentSong == songs[songID])
+	{
+		// Remember: ValidateSongID makes the songID 0-based.  Go back to 1-based here.
+		PlayMusic(songID + 1, currentLoopSetting);
+	}
 }
 
 void SetMusicSystemVolume(int volume)
@@ -625,7 +695,6 @@ void SetMusicSystemVolume(int volume)
 void SetMusicVolume(int songID, int volume)
 {
 	ValidateSongID(songID, );
-	volume = limit(volume, 0, 100);
 	songs[songID]->setvolume(volume);
 	// Change volume if playing.
 	if (soundInstance && currentSong == songs[songID])

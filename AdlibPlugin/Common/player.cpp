@@ -1,24 +1,18 @@
 #include "player.h"
 
-float AgkPlayer::getrefresh()
-{
-	return player->getrefresh();
-}
-
-unsigned int AgkPlayer::getspeed()
-{
-	return player->getspeed();
-}
-
 void AgkPlayer::rewind()
 {
-	player->rewind();
+	player->rewind(subsong);
+	// ADL starts at subsong 2, so sending subsong 0 will really select subsong 2.
+	subsong = player->getsubsong();
 	position = 0;
-}
-
-unsigned long AgkPlayer::songlength()
-{
-	return player->songlength();
+	if (seekPosition > 0)
+	{
+		position = seekPosition;
+		player->seek((unsigned long)(seekPosition * 1000));
+		// Clear the seek position for the next call.
+		seekPosition = 0;
+	}
 }
 
 bool AgkPlayer::update()
@@ -33,21 +27,32 @@ bool AgkPlayer::update()
 
 void AgkPlayer::setvolume(int newvolume)
 {
-	if (newvolume < 0)
+	volume = limit(newvolume, 0, 100);
+}
+
+void AgkPlayer::seek(float seconds, int mode)
+{
+	switch (mode)
 	{
-		volume = 0;
+	case 0: // absolute
+		seekPosition = seconds;
+		break;
+	case 1: // relative
+		seekPosition = position + seconds;
+		break;
+	default:
+		return;
 	}
-	else if (newvolume > 100)
+	// If out of bounds, start at the beginning.
+	if (seekPosition < 0 || seekPosition >= songlength())
 	{
-		volume = 100;
-	}
-	else
-	{
-		volume = newvolume;
+		seekPosition = 0;
 	}
 }
 
-float AgkPlayer::getposition()
+void AgkPlayer::setsubsong(unsigned int newsubsong)
 {
-	return position;
+	subsong = limit(newsubsong, 0, getsubsongs() - 1);
+	// Clear the seek position when switching subsongs.
+	seekPosition = 0;
 }

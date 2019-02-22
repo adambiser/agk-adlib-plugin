@@ -17,6 +17,7 @@ GNU General Public License for more details.
 #pragma once
 
 #include "..\AGKLibraryCommands.h"
+#include "utils.h"
 
 /*
 Emulator Types
@@ -54,9 +55,13 @@ This is done when the plugin unloads and does not need to be explicitly called.
 */
 extern "C" DLL_EXPORT void Shutdown();
 /*
-Deletes all external data entries
+Deletes all external data entries.
 */
 extern "C" DLL_EXPORT void DeleteAllExternalData();
+/*
+Deletes all music managed by the plugin.
+*/
+extern "C" DLL_EXPORT void DeleteAllMusic();
 /*
 Deletes an external data entry.
 @param entryname	The name of the entry to remove.
@@ -67,6 +72,18 @@ extern "C" DLL_EXPORT void DeleteExternalData(const char *entryname);
 @param songID The song ID to delete.
 */
 extern "C" DLL_EXPORT void DeleteMusic(int songID);
+/*
+@desc Returns a song's author.
+@param songID The ID of the song.
+@return A string.
+*/
+extern "C" DLL_EXPORT char *GetMusicAuthor(int songID);
+/*
+@desc Returns the song's description.
+@param songID The ID of the song.
+@return A string.
+*/
+extern "C" DLL_EXPORT char *GetMusicDescription(int songID);
 /*
 @desc Returns the duration of the song in seconds.
 This should not be called on a song while it is playing or the song will start again from the beginning.
@@ -112,12 +129,36 @@ extern "C" DLL_EXPORT int GetMusicRate(int songID);
 There should be no need to change the sound instance directly.  Use the available plugin methods instead.
 @return The sound instance ID.
 */
-extern "C" DLL_EXPORT int GetMusicSoundinstance();
+extern "C" DLL_EXPORT int GetMusicSoundInstance();
+/*
+@desc Returns the current subsong for a song.
+@param songID The ID of the song.
+@return A 0-based subsong index.
+*/
+extern "C" DLL_EXPORT int GetMusicSubsong(int songID);
+/*
+@desc Returns the number of subsongs in a song.
+@param songID The ID of the song.
+@return The number of subsongs in a song.
+*/
+extern "C" DLL_EXPORT int GetMusicSubsongCount(int songID);
 /*
 @desc Returns the volume of the OPL2 synth.
 @return An integer from 0 to 100.
 */
 extern "C" DLL_EXPORT int GetMusicSystemVolume();
+/*
+@desc Returns a song's title.
+@param songID The ID of the song.
+@return A string.
+*/
+extern "C" DLL_EXPORT char *GetMusicTitle(int songID);
+/*
+@desc Returns a song's file type.
+@param songID The ID of the song.
+@return A string.
+*/
+extern "C" DLL_EXPORT char *GetMusicType(int songID);
 /*
 @desc Returns the volume of the given song ID.
 @param songID The song ID.
@@ -190,17 +231,29 @@ extern "C" DLL_EXPORT void ResumeMusic();
 @desc Seeks to a given time value within the song.
 If the song is currently playing, it will continue playing from the new position.
 If the song is not currently playing, it will take effect after the next call to PlayMusic.
+
+If the song contains subsongs, this only affects the current subsong.
+Changing subsongs resets the seek position to the beginning.
 @param songID	The song ID.
 @param seconds	The time in seconds to seek to.
 @param mode		0 for absolute seeking, 1 for relative seeking.
 */
-//extern "C" DLL_EXPORT void SeekMusic(int songID, float seconds, int mode);
+extern "C" DLL_EXPORT void SeekMusic(int songID, float seconds, int mode);
 /*
 @desc Changes the number of times the current song will loop.
 This resets the loop count to 0.
 @param loop		The number of times to loop, or 1 to loop forever.
 */
 extern "C" DLL_EXPORT void SetMusicLoopCount(int loop);
+/*
+@desc Sets the subsong for a song.
+This also resets the seek position for the song to 0.
+
+If changing the subsong for the currently playing song, the subsong will immediately begin playing from the beginning.
+@param songID The ID of the song.
+@param subsong The subsong index.
+*/
+extern "C" DLL_EXPORT void SetMusicSubsong(int songID, int subsong);
 /*
 #desc Sets the colume for the OPL2 synth.
 @param volume A number between 0 and 100 inclusive.

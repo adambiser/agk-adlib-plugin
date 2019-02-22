@@ -116,6 +116,7 @@
     <ClInclude Include="..\Common\memfprovider.h" />
     <ClInclude Include="..\Common\memstream.h" />
     <ClInclude Include="..\Common\player.h" />
+    <ClInclude Include="..\Common\utils.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
