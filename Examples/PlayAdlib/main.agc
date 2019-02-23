@@ -10,6 +10,7 @@ SetErrorMode(2)
 
 #constant NORMAL_COLOR		255, 255, 255
 #constant HIGHLIGHT_COLOR	255, 255, 0
+#constant INACTIVE_COLOR	128, 128, 128
 
 // set window properties
 SetWindowTitle("PlayAdlib")
@@ -40,7 +41,7 @@ global currentEmulator as integer = OPL_NUKED
 #constant CONTROL_BUTTON_SIZE	80
 
 // Create control buttons.
-global controlButtonNames as string[10] = ["Stop", "Pause/_Resume", "Seek_Middle", "Seek to_End - 5s", "Prev_Subsong", "Next_Subsong", "Subsong 20_As Sound", "Subsong 22_As Sound", "System_Volume", "Song_Volume", "Reload_Songs"]
+global controlButtonNames as string[10] = ["Stop", "Pause/_Resume", "Seek_Middle", "Seek to_End - 5s", "Prev_Subsong", "Next_Subsong", "ADL #20_As Sound", "ADL #22_As Sound", "System_Volume", "Song_Volume", "Reload_Songs"]
 #constant CONTROL_BUTTON_START	1
 #constant STOP_BUTTON			1
 #constant PAUSE_BUTTON			2
@@ -219,10 +220,30 @@ Function ChangeSong(newSongIndex as integer)
 		currentSong = emptySongInfo
 	endif
 	// Load info before playing the song.
+	hasSubSongs as integer
 	if currentSong.id
 		// Don't loop short songs.
 		adlib.PlayMusic(currentSong.id, (currentSong.duration >= 2))
 		SetTextColor(currentSong.nameTextID, HIGHLIGHT_COLOR, 255)
+		// Check for subsongs.
+		hasSubSongs = (adlib.GetMusicSubSongCount(currentSong.id) > 1)
+	endif
+	MySetVirtualButtonActive(STOP_BUTTON, currentSong.id)
+	MySetVirtualButtonActive(PAUSE_BUTTON, currentSong.id)
+	MySetVirtualButtonActive(SEEK_MIDDLE_BUTTON, currentSong.id)
+	MySetVirtualButtonActive(SEEK_END_BUTTON, currentSong.id)
+	MySetVirtualButtonActive(PREV_SUBSONG_BUTTON, currentSong.id and hasSubSongs)
+	MySetVirtualButtonActive(NEXT_SUBSONG_BUTTON, currentSong.id and hasSubSongs)
+	MySetVirtualButtonActive(SOUND_20_BUTTON, currentSong.id and hasSubSongs)
+	MySetVirtualButtonActive(SOUND_22_BUTTON, currentSong.id and hasSubSongs)
+EndFunction
+
+Function MySetVirtualButtonActive(button as integer, active as integeR)
+	SetVirtualButtonActive(button, active)
+	if active
+		SetVirtualButtonColor(button, NORMAL_COLOR)
+	else
+		SetVirtualButtonColor(button, INACTIVE_COLOR)
 	endif
 EndFunction
 

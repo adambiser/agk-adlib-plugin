@@ -66,6 +66,7 @@ public:
 	
 	void seek(float seconds, int mode);
 
+	// Return our subsong, not player->getsubsong().  player->getsubsong() can change when playing sounds with music (ADL files).
 	unsigned int getsubsong() { return subsong; } // player->getsubsong();
 	unsigned int getsubsongs() { return player->getsubsongs(); }
 	void setsubsong(unsigned int newsubsong);
