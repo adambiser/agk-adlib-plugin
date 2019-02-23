@@ -4,7 +4,9 @@ AdPlug/*
 # Allow the static libs.
 !AdPlug/Win32
 AdPlug/Win32/*
-!AdPlug/Win32/adplug.lib
+!AdPlug/Win32/adplug*.lib
+!AdPlug/Win32/adplug*.pdb
+
 
 # Allow the header files.
 !AdPlug/src
@@ -47,7 +49,7 @@ bld/
 *.meta
 *.obj
 *.pch
-*.pdb
+#*.pdb
 *.pgc
 *.pgd
 *.rsp
