@@ -41,7 +41,7 @@ global currentEmulator as integer = OPL_NUKED
 #constant CONTROL_BUTTON_SIZE	80
 
 // Create control buttons.
-global controlButtonNames as string[10] = ["Stop", "Pause/_Resume", "Seek_Middle", "Seek to_End - 10s", "Prev_Subsong", "Next_Subsong", "ADL #20_As Sound", "ADL #22_As Sound", "System_Volume", "Song_Volume", "Reload_Songs"]
+global controlButtonNames as string[11] = ["Stop", "Pause/_Resume", "Seek_Middle", "Seek to_End - 10s", "Prev_Subsong", "Next_Subsong", "Subsong #4_As Sound", "Subsong #20_As Sound", "Subsong #22_As Sound", "System_Volume", "Song_Volume", "Reload_Songs"]
 #constant CONTROL_BUTTON_START	1
 #constant STOP_BUTTON			1
 #constant PAUSE_BUTTON			2
@@ -49,11 +49,12 @@ global controlButtonNames as string[10] = ["Stop", "Pause/_Resume", "Seek_Middle
 #constant SEEK_END_BUTTON		4
 #constant PREV_SUBSONG_BUTTON	5
 #constant NEXT_SUBSONG_BUTTON	6
-#constant SOUND_20_BUTTON		7
-#constant SOUND_22_BUTTON		8
-#constant SYSTEM_VOLUME_BUTTON	9
-#constant SONG_VOLUME_BUTTON	10
-#constant RELOAD_SONGS_BUTTON	11
+#constant SOUND_4_BUTTON		7
+#constant SOUND_20_BUTTON		8
+#constant SOUND_22_BUTTON		9
+#constant SYSTEM_VOLUME_BUTTON	10
+#constant SONG_VOLUME_BUTTON	11
+#constant RELOAD_SONGS_BUTTON	12
 #constant EMULATOR_BUTTON_START	20
 
 index as integer
@@ -101,6 +102,7 @@ EndFunction
 // Load songs
 Type SongInfo
 	id as integer
+	filename as string
 	nameTextID as integer
 	duration as float
 	durationString as string
@@ -113,6 +115,7 @@ global externalDataFileNames as string[]
 externalDataFileNames.insertsorted("go-_-go.bnk")
 externalDataFileNames.insertsorted("icepatch.003")
 externalDataFileNames.insertsorted("insts.dat")
+externalDataFileNames.insertsorted("implay.bnk")
 externalDataFileNames.insertsorted("lines1.snd")
 externalDataFileNames.insertsorted("SONG1.ins")
 externalDataFileNames.insertsorted("standard.bnk")
@@ -193,6 +196,7 @@ Function LoadSongs()
 				songs[index].duration = adlib.GetMusicDuration(songs[index].id)
 				songs[index].durationString = GetDurationString(songs[index].duration)
 				// Show the filename in a list.
+				songs[index].filename = filenames[index]
 				songs[index].nameTextID = CreateText(filenames[index])
 				SetTextPosition(songs[index].nameTextID, filenameX, filenameY)
 				SetTextSize(songs[index].nameTextID, FONT_SIZE)
@@ -234,8 +238,9 @@ Function ChangeSong(newSongIndex as integer)
 	MySetVirtualButtonActive(SEEK_END_BUTTON, currentSong.id)
 	MySetVirtualButtonActive(PREV_SUBSONG_BUTTON, currentSong.id and hasSubSongs)
 	MySetVirtualButtonActive(NEXT_SUBSONG_BUTTON, currentSong.id and hasSubSongs)
-	MySetVirtualButtonActive(SOUND_20_BUTTON, currentSong.id and hasSubSongs)
-	MySetVirtualButtonActive(SOUND_22_BUTTON, currentSong.id and hasSubSongs)
+	MySetVirtualButtonActive(SOUND_4_BUTTON, currentSong.id and hasSubSongs and (currentSong.filename = "EOBSOUND.ADL"))
+	MySetVirtualButtonActive(SOUND_20_BUTTON, currentSong.id and hasSubSongs and (currentSong.filename = "DUNE19.ADL"))
+	MySetVirtualButtonActive(SOUND_22_BUTTON, currentSong.id and hasSubSongs and (currentSong.filename = "DUNE19.ADL" or currentSong.filename = "LOREINTR.ADL"))
 EndFunction
 
 Function MySetVirtualButtonActive(button as integer, active as integeR)
@@ -332,6 +337,10 @@ do
 				nextSubsong = 0
 			endif
 			ChangeSubsong(nextSubsong)
+		endif
+	elseif GetVirtualButtonPressed(SOUND_4_BUTTON)
+		if currentSong.id
+			adlib.PlaySound(currentSong.id, 4)
 		endif
 	elseif GetVirtualButtonPressed(SOUND_20_BUTTON)
 		if currentSong.id
