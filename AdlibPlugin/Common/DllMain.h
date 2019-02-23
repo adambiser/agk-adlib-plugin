@@ -44,11 +44,11 @@ Emulator Types
 Initializes the OPL2 soft synth.  This method should be called before attempting to do anything else with this plugin.
 
 All emulators play as 16-bit stereo 44100 Hz sounds.
-@param emulator The emulator to use.
-1 = Nuked OPL3 emulator
-2 = DOSBox emulator.
-3 = Ken Silverman's emulator.
-4 = Tatsuyuki Satoh's emulator.
+@param emulator The emulator to use.  
+1 = Nuked OPL3 emulator  
+2 = DOSBox emulator.  
+3 = Ken Silverman's emulator.  
+4 = Tatsuyuki Satoh's emulator.  
 5 = Dual OPL.
 @return 1 on success; otherwise 0.
 */
@@ -151,7 +151,7 @@ extern "C" DLL_EXPORT int GetMusicSubsong(int songID);
 */
 extern "C" DLL_EXPORT int GetMusicSubsongCount(int songID);
 /*
-@desc Returns the volume of the OPL2 synth.
+@desc Returns the volume of the emulator.
 @return An integer from 0 to 100.
 */
 extern "C" DLL_EXPORT int GetMusicSystemVolume();
@@ -271,7 +271,7 @@ If changing the subsong for the currently playing song, the subsong will immedia
 */
 extern "C" DLL_EXPORT void SetMusicSubsong(int songID, int subsong);
 /*
-@desc Sets the colume for the OPL2 synth.
+@desc Sets the volume of the emulator.
 @param volume A number between 0 and 100 inclusive.
 */
 extern "C" DLL_EXPORT void SetMusicSystemVolume(int volume);
