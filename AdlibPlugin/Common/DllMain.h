@@ -38,6 +38,7 @@ Emulator Types
 //#define SEEK_ABSOLUTE	0
 //#define SEEK_RELATIVE	1
 
+/* @page General Commands */
 /*
 @desc
 Initializes the OPL2 soft synth.  This method should be called before attempting to do anything else with this plugin.
@@ -53,7 +54,7 @@ All emulators play as 16-bit stereo 44100 Hz sounds.
 */
 extern "C" DLL_EXPORT int Init(int emulator);
 /*
-#desc Must be called each frame to ensure that the sound buffers are being loaded.
+@desc Must be called each frame to ensure that the sound buffers are being loaded.
 */
 extern "C" DLL_EXPORT void Update();
 /*
@@ -62,15 +63,15 @@ This is done when the plugin unloads and does not need to be explicitly called.
 */
 extern "C" DLL_EXPORT void Shutdown();
 /*
-Deletes all external data entries.
+@desc Deletes all external data entries.
 */
 extern "C" DLL_EXPORT void DeleteAllExternalData();
 /*
-Deletes all music managed by the plugin.
+@desc Deletes all music managed by the plugin.
 */
 extern "C" DLL_EXPORT void DeleteAllMusic();
 /*
-Deletes an external data entry.
+@desc Deletes an external data entry.
 @param entryname	The name of the entry to remove.
 */
 extern "C" DLL_EXPORT void DeleteExternalData(const char *entryname);
@@ -173,16 +174,15 @@ extern "C" DLL_EXPORT char *GetMusicType(int songID);
 */
 extern "C" DLL_EXPORT int GetMusicVolume(int songID);
 /*
-Load external data required for some music file formats from a file.
+@desc Load external data required for some music file formats from a file.
 Will raise an error if an entry with this name already exists.
 
 ie: The standard.bnk for ROL files.
 @param filename	The file to load.  This is used as the entry name internally.
-@return 1 if the entry was loaded successfully or 0 if an entry with this name already exists.
 */
 extern "C" DLL_EXPORT void LoadExternalDataFromFile(const char *filename);
 /*
-Loads external data required for some music file formats from a file.
+@desc Loads external data required for some music file formats from a file.
 Will raise an error if an entry with this name already exists.
 
 ie: The standard.bnk for ROL files.
@@ -190,11 +190,10 @@ ie: The standard.bnk for ROL files.
 This is the same as LoadExternalDataFromFile, but allows the internal entry name to be set.
 @param filename		The file to load.
 @param entryname	The name of the entry.  Each music file format has its own naming convention.
-@return 1 if the entry was loaded successfully or 0 if an entry with this name already exists.
 */
 extern "C" DLL_EXPORT void LoadExternalDataFromFileEx(const char *filename, const char *entryname);
 /*
-Loads external data required for some music file formats from a memblock.
+@desc Loads external data required for some music file formats from a memblock.
 Will raise an error if an entry with this name already exists.
 
 An internal copy of the memblock is made.
@@ -203,7 +202,6 @@ The memblock in the calling code can be deleted after calling this method.
 ie: The standard.bnk for ROL files.
 @param memblockID	The memblock to load.
 @param entryname	The name of the entry.  Each music file format has its own naming convention.
-@return 1 if the entry was loaded successfully or 0 if an entry with this name already exists.
 */
 extern "C" DLL_EXPORT void LoadExternalDataFromMemblock(int memblockID, const char *entryname);
 /*
@@ -273,7 +271,7 @@ If changing the subsong for the currently playing song, the subsong will immedia
 */
 extern "C" DLL_EXPORT void SetMusicSubsong(int songID, int subsong);
 /*
-#desc Sets the colume for the OPL2 synth.
+@desc Sets the colume for the OPL2 synth.
 @param volume A number between 0 and 100 inclusive.
 */
 extern "C" DLL_EXPORT void SetMusicSystemVolume(int volume);
