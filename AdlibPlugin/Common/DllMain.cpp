@@ -129,7 +129,7 @@ int GetPlayVolume()
 {
 	if (currentSong && musicSystemVolume)
 	{
-		return (int)((musicSystemVolume / 100.0f) * currentSong->getvolume());
+		return (int)((musicSystemVolume / 100.0f) * currentSong->GetVolume());
 	}
 	return 0;
 }
@@ -229,12 +229,12 @@ void LoadNextBuffer()
 			{
 				// Read song instructions.
 				//agk::Log("currentSong->update");
-				eof = !currentSong->update();
-				float refresh = currentSong->getrefresh();
+				eof = !currentSong->Update();
+				float refresh = currentSong->GetRefresh();
 				if (refresh)
 				{
 					//agk::Log("has framesToRender");
-					framesToRender = (int)(SOUND_SAMPLE_RATE / currentSong->getrefresh());
+					framesToRender = (int)(SOUND_SAMPLE_RATE / currentSong->GetRefresh());
 				}
 			}
 			if (framesToRender)
@@ -268,7 +268,7 @@ void LoadNextBuffer()
 				else
 				{
 					//agk::Log("currentSong->rewind");
-					currentSong->rewind();
+					currentSong->Rewind();
 					eof = false;
 				}
 			}
@@ -381,19 +381,19 @@ static char *CreateString(std::string text)
 char *GetMusicAuthor(int songID)
 {
 	ValidateSongID(songID, NULL);
-	return CreateString(songs[songID]->getauthor());
+	return CreateString(songs[songID]->GetAuthor());
 }
 
 char *GetMusicDescription(int songID)
 {
 	ValidateSongID(songID, NULL);
-	return CreateString(songs[songID]->getdesc());
+	return CreateString(songs[songID]->GetDescription());
 }
 
 float GetMusicDuration(int songID)
 {
 	ValidateSongID(songID, 0.0f);
-	return songs[songID]->songlength();
+	return songs[songID]->GetSongLength();
 }
 
 int GetMusicExists(int songID)
@@ -424,13 +424,13 @@ float GetMusicPosition(int songID)
 {
 	ValidateSongID(songID, 0);
 	// Subtract the frames that still need to be rendered.
-	return songs[songID]->getposition() - framesToRender / (float)SOUND_SAMPLE_RATE;
+	return songs[songID]->GetPosition() - framesToRender / (float)SOUND_SAMPLE_RATE;
 }
 
 int GetMusicRate(int songID)
 {
 	ValidateSongID(songID, 0);
-	return songs[songID]->getspeed();
+	return songs[songID]->GetSpeed();
 }
 
 int GetMusicSoundInstance()
@@ -441,13 +441,13 @@ int GetMusicSoundInstance()
 int GetMusicSubsong(int songID)
 {
 	ValidateSongID(songID, 0);
-	return songs[songID]->getsubsong();
+	return songs[songID]->GetSubsong();
 }
 
 int GetMusicSubsongCount(int songID)
 {
 	ValidateSongID(songID, 0);
-	return songs[songID]->getsubsongs();
+	return songs[songID]->GetSubsongCount();
 }
 
 int GetMusicSystemVolume()
@@ -458,19 +458,19 @@ int GetMusicSystemVolume()
 char *GetMusicTitle(int songID)
 {
 	ValidateSongID(songID, NULL);
-	return CreateString(songs[songID]->gettitle());
+	return CreateString(songs[songID]->GetTitle());
 }
 
 char *GetMusicType(int songID)
 {
 	ValidateSongID(songID, NULL);
-	return CreateString(songs[songID]->gettype());
+	return CreateString(songs[songID]->GetType());
 }
 
 int GetMusicVolume(int songID)
 {
 	ValidateSongID(songID, 0);
-	return songs[songID]->getvolume();
+	return songs[songID]->GetVolume();
 }
 
 void LoadExternalDataFromFile(const char *filename)
@@ -597,7 +597,7 @@ void PlayMusic(int songID, int loop)
 	ValidateSongID(songID, );
 	currentSong = songs[songID];
 	// Rewind takes the song to the current seek position, which might be 0 anyway.
-	currentSong->rewind();
+	currentSong->Rewind();
 	//Log("framesPerTic: %d", framesPerTic);
 	currentLoopSetting = loop;
 	agk::Log("Loading buffers");
@@ -618,7 +618,7 @@ void PlaySound(int songID, int subsong)
 	// If not currently playing the given song, switch to it.
 	if (currentSong == songs[songID])
 	{
-		currentSong->playsound(subsong);
+		currentSong->PlaySound(subsong);
 	}
 	else
 	{
@@ -650,10 +650,10 @@ void ResumeMusic()
 void SeekMusic(int songID, float seconds, int mode)
 {
 	ValidateSongID(songID, );
-	songs[songID]->seek(seconds, mode);
+	songs[songID]->Seek(seconds, mode);
 	if (currentSong == songs[songID])
 	{
-		currentSong->rewind();
+		currentSong->Rewind();
 	}
 }
 
@@ -667,7 +667,7 @@ void SetMusicSubsong(int songID, int subsong)
 {
 	ValidateSongID(songID, );
 	//unsigned int oldSubsong = songs[songID]->getsubsong();
-	songs[songID]->setsubsong(subsong);
+	songs[songID]->SetSubsong(subsong);
 	// If currently playing, immediately start playing the new subsong.
 	if (currentSong == songs[songID])
 	{
@@ -675,7 +675,7 @@ void SetMusicSubsong(int songID, int subsong)
 		//PlayMusic(songID + 1, currentLoopSetting);
 		// Just rewind for the new subsong.
 		// ADL files can play multiple subsongs simultaneously.  Some subsongs are songs, some are sound effects.
-		songs[songID]->rewind();
+		songs[songID]->Rewind();
 	}
 }
 
@@ -691,7 +691,7 @@ void SetMusicSystemVolume(int volume)
 void SetMusicVolume(int songID, int volume)
 {
 	ValidateSongID(songID, );
-	songs[songID]->setvolume(volume);
+	songs[songID]->SetVolume(volume);
 	// Change volume if playing.
 	if (soundInstance && currentSong == songs[songID])
 	{
@@ -705,7 +705,7 @@ void StopMusic()
 	if (currentSong)
 	{
 		// Rewind the wong and clear this pointer, but do not delete the song!
-		currentSong->rewind();
+		currentSong->Rewind();
 		currentSong = NULL;
 	}
 	if (soundInstance)

@@ -21,7 +21,7 @@ player.cpp - Wrapper for CPlayers to provide some extra functionality.
 
 #include "player.h"
 
-void AgkPlayer::rewind()
+void AgkPlayer::Rewind()
 {
 	player->rewind(subsong);
 	// ADL starts at subsong 2, so sending subsong -1 will really select subsong 2.
@@ -36,12 +36,12 @@ void AgkPlayer::rewind()
 	}
 }
 
-void AgkPlayer::playsound(unsigned int subsong)
+void AgkPlayer::PlaySound(unsigned int subsong)
 {
 	player->rewind(subsong);
 }
 
-bool AgkPlayer::update()
+bool AgkPlayer::Update()
 {
 	bool result = player->update();
 	if (result)
@@ -51,12 +51,12 @@ bool AgkPlayer::update()
 	return result;
 }
 
-void AgkPlayer::setvolume(int newvolume)
+void AgkPlayer::SetVolume(int newvolume)
 {
 	volume = limit(newvolume, 0, 100);
 }
 
-void AgkPlayer::seek(float seconds, int mode)
+void AgkPlayer::Seek(float seconds, int mode)
 {
 	switch (mode)
 	{
@@ -70,15 +70,15 @@ void AgkPlayer::seek(float seconds, int mode)
 		return;
 	}
 	// If out of bounds, start at the beginning.
-	if (seekPosition < 0 || seekPosition >= songlength())
+	if (seekPosition < 0 || seekPosition >= player->songlength())
 	{
 		seekPosition = 0;
 	}
 }
 
-void AgkPlayer::setsubsong(unsigned int newsubsong)
+void AgkPlayer::SetSubsong(unsigned int newsubsong)
 {
-	subsong = limit(newsubsong, 0, getsubsongs() - 1);
+	subsong = limit(newsubsong, 0, GetSubsongCount() - 1);
 	// Clear the seek position when switching subsongs.
 	seekPosition = 0;
 }

@@ -47,36 +47,36 @@ public:
 		}
 	}
 
-	std::string gettype() { return player->gettype(); }
-	std::string gettitle() { return player->gettitle(); }
-	std::string getauthor() { return player->getauthor(); }
-	std::string getdesc() { return player->getdesc(); }
+	std::string GetType() { return player->gettype(); }
+	std::string GetTitle() { return player->gettitle(); }
+	std::string GetAuthor() { return player->getauthor(); }
+	std::string GetDescription() { return player->getdesc(); }
 
-	float getrefresh() { return player->getrefresh(); }
-	unsigned int getspeed() { return player->getspeed(); }
+	float GetRefresh() { return player->getrefresh(); }
+	unsigned int GetSpeed() { return player->getspeed(); }
 	// Rewinds to the last seek position set.  The seek position is then cleared.
-	void rewind();
+	void Rewind();
 	// Plays a subsong as a sound effect.  Keeps the music looping.
-	void playsound(unsigned int subsong);
+	void PlaySound(unsigned int subsong);
 	// In seconds.
-	float songlength()
+	float GetSongLength()
 	{
 		// For ADL files, this will reset the OPL so that songlength(subsong) is accurate.
 		player->rewind();
 		return player->songlength(subsong) / 1000.0f;
 	}
-	bool update();
-	int getvolume() { return volume; }
-	void setvolume(int newvolume);
-	float getposition() { return position; }
-	float getseekposition() { return seekPosition; }
+	bool Update();
+	int GetVolume() { return volume; }
+	void SetVolume(int newvolume);
+	float GetPosition() { return position; }
+	float GetSeekPosition() { return seekPosition; }
 	
-	void seek(float seconds, int mode);
+	void Seek(float seconds, int mode);
 
 	// Return our subsong, not player->getsubsong().  player->getsubsong() can change when playing sounds with music (ADL files).
-	unsigned int getsubsong() { return subsong; } // player->getsubsong();
-	unsigned int getsubsongs() { return player->getsubsongs(); }
-	void setsubsong(unsigned int newsubsong);
+	unsigned int GetSubsong() { return subsong; } // player->getsubsong();
+	unsigned int GetSubsongCount() { return player->getsubsongs(); }
+	void SetSubsong(unsigned int newsubsong);
 
 protected:
 	CPlayer *player;
