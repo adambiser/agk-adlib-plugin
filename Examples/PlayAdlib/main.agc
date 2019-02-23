@@ -41,7 +41,7 @@ global currentEmulator as integer = OPL_NUKED
 #constant CONTROL_BUTTON_SIZE	80
 
 // Create control buttons.
-global controlButtonNames as string[11] = ["Stop", "Pause/_Resume", "Seek_Middle", "Seek to_End - 10s", "Prev_Subsong", "Next_Subsong", "Subsong #4_As Sound", "Subsong #20_As Sound", "Subsong #22_As Sound", "System_Volume", "Song_Volume", "Reload_Songs"]
+global controlButtonNames as string[11] = ["Stop", "Pause/_Resume", "Seek_Middle", "Seek to_End - 10s", "Prev_Subsong", "Next_Subsong", "Subsong 4_As Sound", "Subsong 20_As Sound", "Subsong 22_As Sound", "System_Volume", "Song_Volume", "Reload_Songs"]
 #constant CONTROL_BUTTON_START	1
 #constant STOP_BUTTON			1
 #constant PAUSE_BUTTON			2
@@ -253,11 +253,9 @@ Function MySetVirtualButtonActive(button as integer, active as integeR)
 EndFunction
 
 Function ChangeSubsong(newSubsong as integeR)
-	// To use GetMusicDuration for a new subsong, make sure the song is not already playing because
+	// To be able to use GetMusicDuration on the new subsong, the song must not be playing or
 	// SetMusicSubsong will start playing the new subsong automatically.
-	// To use GetMusicDuration for a subsong, first call StopMusic.
-	// However, to allow ADL's ability to play multiple subsongs at once (songs and sound effects),
-	// This is not done.
+	// Since GetMusicDuration is only being used for this demo, StopMusic won't be needed.
 	playing as integer
 	playing = adlib.GetMusicPlaying()
 	adlib.StopMusic()
