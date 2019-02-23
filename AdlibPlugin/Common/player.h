@@ -1,15 +1,22 @@
 /*
+AdlibPlugin - AppGameKit Plugin to play OPL2/3 files using AdPlug.
 Copyright (c) 2019 Adam Biser <adambiser@gmail.com>
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 2 of the License, or
-(at your option) any later version.
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
+This library is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+player.h - Wrapper for CPlayers to provide some extra functionality.
 */
 
 #ifndef _PLAYER_H_
@@ -50,7 +57,7 @@ public:
 	// Rewinds to the last seek position set.  The seek position is then cleared.
 	void rewind();
 	// Plays a subsong as a sound effect.  Keeps the music looping.
-	void playSoundEffect(unsigned int subsong);
+	void playsound(unsigned int subsong);
 	// In seconds.
 	float songlength()
 	{
@@ -78,4 +85,5 @@ protected:
 	float position;
 	float seekPosition;
 };
+
 #endif // _PLAYER_H_
