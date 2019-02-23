@@ -4,7 +4,7 @@ void AgkPlayer::rewind()
 {
 	player->rewind(subsong);
 	// ADL starts at subsong 2, so sending subsong 0 will really select subsong 2.
-	subsong = player->getsubsong();
+	subsong = -1;// player->getsubsong();
 	position = 0;
 	if (seekPosition > 0)
 	{

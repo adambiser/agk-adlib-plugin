@@ -141,6 +141,9 @@ Function GetSongFiles()
 		endif
 		filename = GetNextFile()
 	endwhile
+	//~ filenames.insert("DUNE19.ADL")
+	//~ filenames.insert("EOBSOUND.ADL")
+	//~ filenames.insert("LOREINTR.ADL")
 EndFunction filenames
 
 //
@@ -213,38 +216,32 @@ Function ChangeSong(newSongIndex as integer)
 	endif
 	// Load info before playing the song.
 	if currentSong.id
-		if currentSong.duration < 2
-			adlib.PlayMusic(currentSong.id, 0)
-		else
-			adlib.PlayMusic(currentSong.id, 1)
-		endif
+		// Don't loop short songs.
+		adlib.PlayMusic(currentSong.id, (currentSong.duration >= 2))
 		SetTextColor(currentSong.nameTextID, HIGHLIGHT_COLOR, 255)
 	endif
 EndFunction
 
 Function ChangeSubsong(newSubsong as integeR)
-	// Since we're going to call the GetMusicDuration after changing subsongs and because
-	// SetMusicSubsong will start playing the new subsong if the song is currently playing,
-	// the music is stopped and restarted.
-	playing as integer
-	playing = adlib.GetMusicPlaying()
-	adlib.StopMusic()
-	//~ Message("SetMusicSubsong: " + str(newSubsong))
+	// To use GetMusicDuration for a new subsong, make sure the song is not already playing because
+	// SetMusicSubsong will start playing the new subsong automatically.
+	// To use GetMusicDuration for a subsong, first call StopMusic.
+	// However, to allow ADL's ability to play multiple subsongs at once (songs and sound effects),
+	// This is not done.
+	//~ playing as integer
+	//~ playing = adlib.GetMusicPlaying()
+	//~ adlib.StopMusic()
 	adlib.SetMusicSubsong(currentSong.id, newSubsong)
-	index as integer
-	index = songs.find(currentSong.id)
-	songs[index].duration = adlib.GetMusicDuration(songs[index].id)
-	songs[index].durationString = GetDurationString(songs[index].duration)
-	//~ Message("GetMusicDuration: " + songs[index].durationString)
-	// Refresh the currentsong's information, too.
-	currentSong = songs[index]
-	if playing
-		if currentSong.duration < 2
-			adlib.PlayMusic(currentSong.id, 0)
-		else
-			adlib.PlayMusic(currentSong.id, 1)
-		endif
-	endif
+	//~ index as integer
+	//~ index = songs.find(currentSong.id)
+	//~ songs[index].duration = adlib.GetMusicDuration(songs[index].id)
+	//~ songs[index].durationString = GetDurationString(songs[index].duration)
+	//~ // Refresh the currentsong's information, too.
+	//~ currentSong = songs[index]
+	//~ if playing
+		//~ // Don't loop short songs.
+		//~ adlib.PlayMusic(currentSong.id, (currentSong.duration >= 2))
+	//~ endif
 EndFunction
 
 ChangeEmulator(currentEmulator)
@@ -263,7 +260,7 @@ do
 		Print("File Type: " + adlib.GetMusicType(currentSong.id))
 		Print("Volume: " + str(adlib.GetMusicVolume(currentSong.id)))
 		Print("Rate: " + str(adlib.GetMusicRate(currentSong.id)))
-		Print("Subsong: " + str(adlib.GetMusicSubsong(currentSong.id) + 1) + " of " + str(adlib.GetMusicSubsongCount(currentSong.id)))
+		Print("Subsong: " + str(adlib.GetMusicSubsong(currentSong.id)) + " of " + str(adlib.GetMusicSubsongCount(currentSong.id)))
 		Print("")
 		Print("Position: " + GetDurationString(adlib.GetMusicPosition(currentSong.id)))
 		Print("Duration: " + currentSong.durationString)
@@ -285,7 +282,9 @@ do
 		endif
 	elseif GetVirtualButtonPressed(SEEK_MIDDLE_BUTTON)
 		if currentSong.id
+			adlib.PauseMusic()
 			adlib.SeekMusic(currentSong.id, adlib.GetMusicDuration(currentSong.id) / 2, 0)
+			adlib.ResumeMusic()
 		endif
 	elseif GetVirtualButtonPressed(SEEK_END_BUTTON)
 		if currentSong.id

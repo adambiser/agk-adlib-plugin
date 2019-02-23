@@ -216,71 +216,18 @@ void LoadNextBuffer()
 		//short *endptr = reinterpret_cast<short *>(bufferPos[nextBuffer] + soundBytesPerBuffer);
 		int index = 0;
 		int frames;
+		bool eof = false;
 		do {
 			if (!framesToRender)
 			{
-				// Before checking for frames to render, see if the song has ended and check looping.
-				//if (currentSong->isEndOfSong())
-				//{
-				//	loopCount++;
-				//	//Log("Loop check: %d, %d", loopCount, currentLoopSetting);
-				//	if (currentLoopSetting == 0 || (currentLoopSetting > 1 && loopCount == currentLoopSetting))
-				//	{
-				//		loopCount = 0;
-				//		// Load an additional silent buffer and wait for it to begin playing before stopping.
-				//		// This means that 2 buffer loads need to occur before stopping.
-				//		buffersUntilStop = 2;
-				//		agk::Log("Ending song.  No looping set.");
-				//		// Don't render anything else.
-				//		break;
-				//	}
-				//	else
-				//	{
-				//		currentSong->rewind();
-				//	}
-				//}
 				// Read song instructions.
-				//currentSong->update();
-				agk::Log("currentSong->update");
-				if (currentSong->update())
+				//agk::Log("currentSong->update");
+				eof = !currentSong->update();
+				float refresh = currentSong->getrefresh();
+				if (refresh)
 				{
-					float refresh = currentSong->getrefresh();
-					if (refresh)
-					{
-						agk::Log("has framesToRender");
-						framesToRender = (int)(SOUND_SAMPLE_RATE / currentSong->getrefresh());
-					}
-				}
-				else
-				{
-					// Play subsongs sequentially.
-					//int subsong = currentSong->getsubsong();
-					//agk::Log("Checking subsong.");
-					//if (subsong < currentSong->getsubsongs() - 1)
-					//{
-					//	agk::Log("Next subsong.");
-					//	currentSong->rewind(subsong + 1);
-					//}
-					//else
-					//{
-					//}
-					loopCount++;
-					//Log("Loop check: %d, %d", loopCount, currentLoopSetting);
-					if (currentLoopSetting == 0 || (currentLoopSetting > 1 && loopCount == currentLoopSetting))
-					{
-						loopCount = 0;
-						// Load an additional silent buffer and wait for it to begin playing before stopping.
-						// This means that 2 buffer loads need to occur before stopping.
-						buffersUntilStop = 2;
-						agk::Log("Ending song.  No looping set.");
-						// Don't render anything else.
-						break;
-					}
-					else
-					{
-						agk::Log("currentSong->rewind");
-						currentSong->rewind();
-					}
+					//agk::Log("has framesToRender");
+					framesToRender = (int)(SOUND_SAMPLE_RATE / currentSong->getrefresh());
 				}
 			}
 			if (framesToRender)
@@ -295,6 +242,28 @@ void LoadNextBuffer()
 				opl->update(waveptr, frames);
 				waveptr += frames * SOUND_CHANNELS;
 				index += frames;
+			}
+			// Handle eof after processing frames.  Rewinding resets the emulator.
+			if (eof)
+			{
+				loopCount++;
+				//Log("Loop check: %d, %d", loopCount, currentLoopSetting);
+				if (currentLoopSetting == 0 || (currentLoopSetting > 1 && loopCount == currentLoopSetting))
+				{
+					loopCount = 0;
+					// Load an additional silent buffer and wait for it to begin playing before stopping.
+					// This means that 2 buffer loads need to occur before stopping.
+					buffersUntilStop = 2;
+					agk::Log("Ending song.  No looping set.");
+					// Don't render anything else.
+					break;
+				}
+				else
+				{
+					//agk::Log("currentSong->rewind");
+					currentSong->rewind();
+					eof = false;
+				}
 			}
 		} while (index < SOUND_BUFFER_LENGTH);
 	}
@@ -679,7 +648,10 @@ void SetMusicSubsong(int songID, int subsong)
 	if (currentSong == songs[songID])
 	{
 		// Remember: ValidateSongID makes the songID 0-based.  Go back to 1-based here.
-		PlayMusic(songID + 1, currentLoopSetting);
+		//PlayMusic(songID + 1, currentLoopSetting);
+		// Just rewind for the new subsong.
+		// ADL files can play multiple subsongs simultaneously.  Some subsongs are songs, some are sound effects.
+		songs[songID]->rewind();
 	}
 }
 
