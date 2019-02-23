@@ -41,7 +41,7 @@ global currentEmulator as integer = OPL_NUKED
 #constant CONTROL_BUTTON_SIZE	80
 
 // Create control buttons.
-global controlButtonNames as string[10] = ["Stop", "Pause/_Resume", "Seek_Middle", "Seek to_End - 5s", "Prev_Subsong", "Next_Subsong", "ADL #20_As Sound", "ADL #22_As Sound", "System_Volume", "Song_Volume", "Reload_Songs"]
+global controlButtonNames as string[10] = ["Stop", "Pause/_Resume", "Seek_Middle", "Seek to_End - 10s", "Prev_Subsong", "Next_Subsong", "ADL #20_As Sound", "ADL #22_As Sound", "System_Volume", "Song_Volume", "Reload_Songs"]
 #constant CONTROL_BUTTON_START	1
 #constant STOP_BUTTON			1
 #constant PAUSE_BUTTON			2
@@ -313,7 +313,7 @@ do
 		endif
 	elseif GetVirtualButtonPressed(SEEK_END_BUTTON)
 		if currentSong.id
-			adlib.SeekMusic(currentSong.id, adlib.GetMusicDuration(currentSong.id) - 5, 0)
+			adlib.SeekMusic(currentSong.id, adlib.GetMusicDuration(currentSong.id) - 10, 0)
 		endif
 	elseif GetVirtualButtonPressed(PREV_SUBSONG_BUTTON)
 		if currentSong.id
