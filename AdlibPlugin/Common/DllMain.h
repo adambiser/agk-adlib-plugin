@@ -224,6 +224,17 @@ extern "C" DLL_EXPORT void PauseMusic();
 */
 extern "C" DLL_EXPORT void PlayMusic(int songID, int loop);
 /*
+@desc Plays a subsong as a sound effect.
+Some file formats, such as ADL files, contain many subsongs, some that are music and some that are sound effects.
+Sound effects can be played simultaneously with the songs.
+
+If the given song is not currently playing, the plugin will change to the given song.
+The subsong will be played one time.
+@param songID	The song ID containing the subsong.
+@param subsong	The subsong to play.
+*/
+extern "C" DLL_EXPORT void PlaySound(int songID, int subsong);
+/*
 @desc Resumes music playback if it was paused.
 */
 extern "C" DLL_EXPORT void ResumeMusic();

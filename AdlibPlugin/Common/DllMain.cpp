@@ -590,7 +590,6 @@ void PlayMusic(int songID, int loop)
 	ValidateSongID(songID, );
 	currentSong = songs[songID];
 	// Rewind takes the song to the current seek position, which might be 0 anyway.
-	agk::Log("Rewind");
 	currentSong->rewind();
 	//Log("framesPerTic: %d", framesPerTic);
 	currentLoopSetting = loop;
@@ -603,6 +602,24 @@ void PlayMusic(int songID, int loop)
 	soundInstance = agk::PlaySound(musicSoundID, GetPlayVolume(), 1);
 	clockSoundInstance = agk::PlaySound(clockSoundID, 0, 1);
 	lastClockLoopCount = agk::GetSoundInstanceLoopCount(clockSoundInstance);
+}
+
+void PlaySound(int songID, int subsong)
+{
+	Log("PlaySound: %d / %d", songID, subsong);
+	ValidateSongID(songID, );
+	// If not currently playing the given song, switch to it.
+	if (currentSong == songs[songID])
+	{
+		currentSong->playSoundEffect(subsong);
+	}
+	else
+	{
+		// No looping for sound effects.
+		SetMusicSubsong(songID, subsong);
+		PlayMusic(songID, 0);
+		return;
+	}
 }
 
 void ResumeMusic()

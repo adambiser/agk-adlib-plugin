@@ -40,7 +40,7 @@ global currentEmulator as integer = OPL_NUKED
 #constant CONTROL_BUTTON_SIZE	80
 
 // Create control buttons.
-global controlButtonNames as string[8] = ["Stop", "Pause/_Resume", "Seek_Middle", "Seek to_End - 10s", "Prev_Subsong", "Next_Subsong", "System_Volume", "Song_Volume", "Reload_Songs"]
+global controlButtonNames as string[10] = ["Stop", "Pause/_Resume", "Seek_Middle", "Seek to_End - 5s", "Prev_Subsong", "Next_Subsong", "Subsong 20_As Sound", "Subsong 22_As Sound", "System_Volume", "Song_Volume", "Reload_Songs"]
 #constant CONTROL_BUTTON_START	1
 #constant STOP_BUTTON			1
 #constant PAUSE_BUTTON			2
@@ -48,23 +48,27 @@ global controlButtonNames as string[8] = ["Stop", "Pause/_Resume", "Seek_Middle"
 #constant SEEK_END_BUTTON		4
 #constant PREV_SUBSONG_BUTTON	5
 #constant NEXT_SUBSONG_BUTTON	6
-#constant SYSTEM_VOLUME_BUTTON	7
-#constant SONG_VOLUME_BUTTON	8
-#constant RELOAD_SONGS_BUTTON	9
-#constant EMULATOR_BUTTON_START	10
+#constant SOUND_20_BUTTON		7
+#constant SOUND_22_BUTTON		8
+#constant SYSTEM_VOLUME_BUTTON	9
+#constant SONG_VOLUME_BUTTON	10
+#constant RELOAD_SONGS_BUTTON	11
+#constant EMULATOR_BUTTON_START	20
 
 index as integer
 buttonX as integer
 buttonY as integer
 // Control buttons
 buttonX = BUTTON_PADDING + CONTROL_BUTTON_SIZE / 2
-buttonY = GetWindowHeight() - (BUTTON_PADDING + CONTROL_BUTTON_SIZE / 2) - (CONTROL_BUTTON_SIZE + BUTTON_PADDING) * 2
+buttonY = GetWindowHeight() - (BUTTON_PADDING + CONTROL_BUTTON_SIZE / 2) - (CONTROL_BUTTON_SIZE + BUTTON_PADDING) * 3
 for index = 0 to controlButtonNames.length
-	if index + CONTROL_BUTTON_START = SYSTEM_VOLUME_BUTTON
-		// Next row
-		buttonX = BUTTON_PADDING + CONTROL_BUTTON_SIZE / 2
-		inc buttonY, CONTROL_BUTTON_SIZE + BUTTON_PADDING
-	endif
+	select index + CONTROL_BUTTON_START
+		case PREV_SUBSONG_BUTTON, SYSTEM_VOLUME_BUTTON
+			// Next row
+			buttonX = BUTTON_PADDING + CONTROL_BUTTON_SIZE / 2
+			inc buttonY, CONTROL_BUTTON_SIZE + BUTTON_PADDING
+		endcase
+	endselect
 	AddVirtualButton(index + CONTROL_BUTTON_START, buttonX, buttonY, CONTROL_BUTTON_SIZE)
 	SetVirtualButtonText(index + CONTROL_BUTTON_START, ReplaceString(controlButtonNames[index], "_", NEWLINE, -1))
 	inc buttonX, CONTROL_BUTTON_SIZE + BUTTON_PADDING
@@ -228,20 +232,20 @@ Function ChangeSubsong(newSubsong as integeR)
 	// To use GetMusicDuration for a subsong, first call StopMusic.
 	// However, to allow ADL's ability to play multiple subsongs at once (songs and sound effects),
 	// This is not done.
-	//~ playing as integer
-	//~ playing = adlib.GetMusicPlaying()
-	//~ adlib.StopMusic()
+	playing as integer
+	playing = adlib.GetMusicPlaying()
+	adlib.StopMusic()
 	adlib.SetMusicSubsong(currentSong.id, newSubsong)
-	//~ index as integer
-	//~ index = songs.find(currentSong.id)
-	//~ songs[index].duration = adlib.GetMusicDuration(songs[index].id)
-	//~ songs[index].durationString = GetDurationString(songs[index].duration)
-	//~ // Refresh the currentsong's information, too.
-	//~ currentSong = songs[index]
-	//~ if playing
-		//~ // Don't loop short songs.
-		//~ adlib.PlayMusic(currentSong.id, (currentSong.duration >= 2))
-	//~ endif
+	index as integer
+	index = songs.find(currentSong.id)
+	songs[index].duration = adlib.GetMusicDuration(songs[index].id)
+	songs[index].durationString = GetDurationString(songs[index].duration)
+	// Refresh the currentsong's information, too.
+	currentSong = songs[index]
+	if playing
+		// Don't loop short songs.
+		adlib.PlayMusic(currentSong.id, (currentSong.duration >= 2))
+	endif
 EndFunction
 
 ChangeEmulator(currentEmulator)
@@ -288,7 +292,7 @@ do
 		endif
 	elseif GetVirtualButtonPressed(SEEK_END_BUTTON)
 		if currentSong.id
-			adlib.SeekMusic(currentSong.id, adlib.GetMusicDuration(currentSong.id) - 10, 0)
+			adlib.SeekMusic(currentSong.id, adlib.GetMusicDuration(currentSong.id) - 5, 0)
 		endif
 	elseif GetVirtualButtonPressed(PREV_SUBSONG_BUTTON)
 		if currentSong.id
@@ -307,6 +311,14 @@ do
 				nextSubsong = 0
 			endif
 			ChangeSubsong(nextSubsong)
+		endif
+	elseif GetVirtualButtonPressed(SOUND_20_BUTTON)
+		if currentSong.id
+			adlib.PlaySound(currentSong.id, 20)
+		endif
+	elseif GetVirtualButtonPressed(SOUND_22_BUTTON)
+		if currentSong.id
+			adlib.PlaySound(currentSong.id, 22)
 		endif
 	elseif GetVirtualButtonPressed(SYSTEM_VOLUME_BUTTON)
 		if adlib.GetMusicSystemVolume() = 100

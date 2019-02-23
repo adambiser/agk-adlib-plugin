@@ -26,7 +26,7 @@ public:
 	AgkPlayer(CPlayer *p) : 
 		player(p), 
 		volume(100),
-		subsong(-1), //p->getsubsong()),
+		subsong(-1),
 		position(0),
 		seekPosition(0)
 	{}
@@ -50,32 +50,12 @@ public:
 	// Rewinds to the last seek position set.  The seek position is then cleared.
 	void rewind();
 	// Plays a subsong as a sound effect.  Keeps the music looping.
-	//void playSoundEffect(unsigned int subsong);
+	void playSoundEffect(unsigned int subsong);
 	// In seconds.
 	float songlength()
 	{
-		//std::string msg;
-		//if (subsong == 4)
-		//{
-		//	msg.append("songlength ").append(std::to_string(subsong));
-		//	agk::Log(msg.c_str());
-		//}
-		//// get song length
-		//float slength = 0.0f;
+		// For ADL files, this will reset the OPL so that songlength(subsong) is accurate.
 		player->rewind();
-		//player->rewind(subsong);
-		//while (player->update() && slength < 600000)	// song length limit: 10 minutes
-		//{
-		//	slength += 1000.0f / player->getrefresh();
-		//	if (subsong == 4)
-		//	{
-		//		msg.clear();
-		//		msg.append("slength = ").append(std::to_string(slength));
-		//		agk::Log(msg.c_str());
-		//	}
-		//}
-		//player->rewind(subsong);
-		//return slength / 1000.0f;
 		return player->songlength(subsong) / 1000.0f;
 	}
 	bool update();
@@ -86,7 +66,7 @@ public:
 	
 	void seek(float seconds, int mode);
 
-	unsigned int getsubsong() { return player->getsubsong(); }
+	unsigned int getsubsong() { return subsong; } // player->getsubsong();
 	unsigned int getsubsongs() { return player->getsubsongs(); }
 	void setsubsong(unsigned int newsubsong);
 

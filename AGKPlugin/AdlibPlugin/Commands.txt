@@ -35,6 +35,7 @@ LoadMusicFromMemblock,I,IS,LoadMusicFromMemblock,0,0,0,0,0
 LoadMusicFromFile,I,S,LoadMusicFromFile,0,0,0,0,0
 PauseMusic,0,0,PauseMusic,0,0,0,0,0
 PlayMusic,0,II,PlayMusic,0,0,0,0,0
+PlaySound,0,II,PlaySound,0,0,0,0,0
 ResumeMusic,0,0,ResumeMusic,0,0,0,0,0
 SeekMusic,0,IFI,SeekMusic,0,0,0,0,0
 SetMusicLoopCount,0,I,SetMusicLoopCount,0,0,0,0,0
