@@ -30,4 +30,4 @@ This project is licensed under the LGPL 2.1 License - see the [LICENSE](LICENSE)
 ## Acknowledgments
 
 * [AppGameKit](https://www.appgamekit.com/) for their wonderful game development engine.
-* [All contributors to AdPlug](https://github.com/adplug/adplug).
+* [Everyone who contributed to AdPlug.](https://github.com/adplug/adplug)
